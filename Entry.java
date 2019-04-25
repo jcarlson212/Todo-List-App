@@ -1,143 +1,55 @@
 //package entry;
 import java.util.*;
 import java.text.*;
+import java.io.*;
 
+public class Entry implements Serializable {
+	public enum Status {
+		notStarted,
+		inProgress,
+		finished;
 
-public class Entry {
-	
-	/*
-	public static void main(String []args)
-	{
-		Scanner in = new Scanner (System.in);
-		StatusCompare sttComp = new StatusCompare();//status compare method object
-		descriptionCompare desComp = new descriptionCompare();//description compare
-		dueDateCompare dueComp = new dueDateCompare();//dueDate compare
-		priorityCompare priComp = new priorityCompare();//priority compare
-		SimpleDateFormat sf = new SimpleDateFormat("MM/dd/yyyy");
-		
-		String SdueDate = "";
-		String description = "";
-		Date dueDate;
-		int priority;
-		int decision;
-		boolean stillAdding = true;
-		ArrayList<Entry> todoList = new ArrayList<Entry>();// The ArrayList
-		
-		while(stillAdding)
-		{
-			
-			System.out.println("Please Enter Your Due Date (In Format of MM/dd/yyyy): ");
-			SdueDate = in.next();
-			
-			//this try part for parsing due date from string to Date Object
-			try {
-				dueDate = sf.parse(SdueDate);
-			}catch(java.text.ParseException e) {
-				System.out.println("Invalid Date Format (Format is MM/dd/yyyy) \t Please Re_enter\n");
-				continue;
+		public String toString() {
+			String name = this.name() ;
+
+			if (name.equals("notStarted")) {
+				return "Not Started";
 			}
-			
-			System.out.println("Please Enter Your Description: ");
-			description = in.nextLine();	
-			description = in.nextLine();
-			System.out.println("Please Enter Your Priority: ");
-			priority = in.nextInt();
-			
-			
 
-			
-			todoList.add(new Entry (description, dueDate, priority));
-			
-			System.out.println("Still adding one more entry? To enter 0 to quit");
-			decision = in.nextInt();
-			if(decision == 0)
-				stillAdding = false;
-					
+			if (name.equals("inProgress")) {
+				return "In Progress";
+			}
+
+			if (name.equals("finished")) {
+				return "Finished";
+			}
+
+			return name;
 		}
-		
-		
-		
-		//original order
-		System.out.println("Before Sort:\n");
-		Entry.printArray(todoList);
+	}
 
-		
-
-		//Description sort
-		System.out.println("\nAfter Description Sort:\n");
-		Collections.sort(todoList, desComp);
-		Entry.printArray(todoList);
-		
-		
-		//Due date sort
-		System.out.println("\nAfter DueDate Sort:\n");
-		Collections.sort(todoList, dueComp);
-		Entry.printArray(todoList);
-		
-		
-		//Priority Sort
-		System.out.println("\nAfter Priority Sort:\n");
-		Collections.sort(todoList, priComp);
-		Entry.printArray(todoList);
-		
-		//Status sort
-		System.out.println("\nAfter Status Sort:\n");
-		Collections.sort(todoList, sttComp);
-		Entry.printArray(todoList);
-		
-		System.out.println(Entry.toString(todoList));
-		
-	}//end of main
-
-	
-	
-	
-	//below part is functions and variables of entry and constructor
-	static DecimalFormat df = new DecimalFormat("#");
-	static DecimalFormat dff = new DecimalFormat("#.00");
-	
-	private boolean isDeleted = false;
-	private boolean isFinished = false;
-	private String description = "";
-	private String currentStatus;
-	private double finishDate;
+	private String description;
 	private Date dueDate;
-	private int intStatus;
-	private int priority;	
-	private final int notStart = 0;
-	private final int inProgress = 1;
-	private final int finished = 2;
-	private final String SnotStart =   "Not Start Yet";
-	private final String SinProgress = "In Progress";
-	private final String SFinished = "Event finished";
-	/*private enum status{
-		notStart("not Start"),
-		inProgress("inProgress"),
-		isFinished("isFinished");
-		
-		private  String SnotStart;
-		private  String SinProgress;
-		private  String SisFinished;
-		
-		status(String parsing){
-			SnotStart = parsing;
-		}
-	}*/
+	private Date finishDate;
+	private Status currentStatus;
+	private boolean isDeleted;
+	private int priority;
 	
-	public Entry(String description, Date dueDate, int priority) {
+	public Entry(String description, Date dueDate) {
 		this.description = description;
 		this.dueDate = dueDate;
-		this.priority = priority;
-		this.intStatus = notStart;
-		this.currentStatus = SnotStart;
+		this.finishDate = null;
+		this.priority = 0;
+		this.currentStatus = Status.notStarted;
+		this.isDeleted = false;
 		
-	}//end of constructor
+	} //end of constructor
 	
 	public String getDescription(){
 		return description;
 	}
 	
-	public double getFinishDate() {
+	public Date getFinishDate() {
 		return finishDate;
 	}
 	
@@ -145,7 +57,7 @@ public class Entry {
 		return dueDate;
 	}
 	
-	public double getPriority() {
+	public int getPriority() {
 		return priority;
 	}
 	
@@ -153,7 +65,7 @@ public class Entry {
 		this.description  = des;
 	}
 	
-	public void setFinishDate(double date) {
+	public void setFinishDate(Date date) {
 		this.finishDate = date;
 	}
 	
@@ -165,39 +77,67 @@ public class Entry {
 		this.priority = prior;
 	}
 	
-	public void toDelete(Entry entry1) {
-		entry1.isDeleted = true;
+	public void markAsDeleted() {
+		this.isDeleted = true;
 	}
 	
-	public void toFinish(Entry entry1) {
-		entry1.isFinished = true;
+	public Status getStatus() {
+		return currentStatus;
 	}
 	
-	public String getStatus(Entry entry1) {
-		String result="";
-		if(entry1.intStatus == notStart)
-			result = SnotStart;
-		if(entry1.intStatus == inProgress)
-			result = SinProgress;
-		if(entry1.intStatus == finished)
-			result = SFinished;
-		return result;
+	public void setStatus(Status newStatus) {
+		this.currentStatus = newStatus;
 	}
-	
-	public void setStatus(int setter) {
-		if(setter == inProgress)
-		{
-			this.currentStatus = SinProgress;
-			this.intStatus = inProgress;
-		}
-		else if(setter == finished)
-		{
-			this.currentStatus = SFinished;
-			this.intStatus = finished;
-		}
-	}
-	
 
+
+	// Helper Functions
+	public void print() {
+		String toPrint = "";
+		toPrint += getDescription() + "\n";
+		toPrint += getPriority() + "\n";
+		toPrint += getDueDate() + "\n";
+		toPrint += getStatus();
+
+		System.out.println(toPrint);
+	}
+
+	public void WriteObjectToFile(Object serObj) {
+		final String filePath = "/home/bo/Downloads/test";
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream(filePath) ;
+			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut) ;
+			objectOut.writeObject(serObj);
+			objectOut.close();
+			System.out.println("The object was successfully written");
+			
+			
+		} catch(Exception e) {
+			System.out.println("The object was not successfully written");
+			e.printStackTrace();
+		}
+	}
+
+	public Object ReadObjectFromFile(String filepath) {
+        try {
+ 
+            FileInputStream fileIn = new FileInputStream(filepath);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+ 
+            Object obj = objectIn.readObject();
+ 
+            System.out.println("The Object has been read from the file");
+            objectIn.close();
+            return obj;
+ 
+        } catch (Exception ex) {
+            System.out.println("The Object has not been read from the file");
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+	/*
 	public static void printArray(ArrayList<Entry> todoList) {
 		for( Entry entry: todoList) {
 			if(entry.isDeleted == true || entry.isFinished == true)
@@ -206,8 +146,18 @@ public class Entry {
 			+"\t\tPriority: "+ df.format(entry.getPriority()) + "\tCurrent Status: " + entry.getStatus(entry));
 		}
 	}
-	
-	public static String toString(ArrayList<Entry> todoList) {
+	public String toString() {
+		Stirng toReturn = "";
+
+		toReturn +=.getDescription() + "\n";
+		toReturn += getStatus() + "\n";
+		toReturn += 
+
+		toReturn += getPriotriy() + "\n";
+		
+
+
+
 			String allEntrytoString="";			
 			for( Entry entry: todoList) {
 			allEntrytoString= entry.getDescription() + "\n" 
@@ -217,64 +167,6 @@ public class Entry {
 			}//end of for loop
 			return allEntrytoString;	
 	}
+	*/
 	
 }//end of entry class
-
-
-//below parts are comparing methods of different variables.
-//due to Collection.Sort can receive two parameters, so I use classes instead of functions.
-
-class descriptionCompare implements Comparator<entry> 
-{ 
-    public int compare(entry entry1, entry entry2) 
-    { 
-        if (entry1.getDescription().compareTo(entry2.getDescription()) < 0 ) 
-        	return -1; 
-        if (entry1.getDescription().compareTo(entry2.getDescription()) > 0) 
-        	return 1; 
-        
-        else return 0; 
-    } 
-} 
-
-class StatusCompare implements Comparator<entry> 
-{ 
-    public int compare(entry entry1, entry entry2) 
-    { 
-        if (entry1.getStatus(entry1).compareTo(entry2.getStatus(entry2)) < 0 ) 
-        	return 1; 
-        if (entry1.getStatus(entry1).compareTo(entry2.getStatus(entry2)) > 0) 
-        	return -1; 
-        
-        else return 0; 
-    } 
-} 
-
-class dueDateCompare implements Comparator<entry> 
-{ 
-    public int compare(entry entry1, entry entry2) 
-    { 
-        if(entry1.getDueDate().compareTo(entry2.getDueDate()) < 0 )
-        	return -1;
-        if(entry1.getDueDate() .compareTo(entry2.getDueDate()) > 0)
-        	return 1;
-        else
-        	return 0;
-    } 
-}
-
-class priorityCompare implements Comparator<entry> 
-{ 
-    public int compare(entry entry1, entry entry2) 
-    { 
-        if(entry1.getPriority() < entry2.getPriority())
-        	return -1;
-        if(entry1.getPriority() > entry2.getPriority())
-        	return 1;
-        else
-        	return 0;
-    } 
-    
-    */
-}
-  
