@@ -1,10 +1,19 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+
 
 import javax.swing.event.HyperlinkEvent.EventType;
 import javafx.event.EventHandler;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
@@ -24,20 +33,31 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
 public class Main extends Application {
+	
+	EntryList toDoList = new EntryList();
+	TableView<Entry> tableOfToDoList;
+	
+	//private final ObservableList<Entry> data =
+    //        FXCollections.observableArrayList(
+    //        new Entry("Jacob", new Date())
+    ///);
+            
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void start(Stage primaryStage) {
+		AnchorPane root = new AnchorPane();
 		
-		HBox addNewEntryHBox = getAddEntryHBox();
+		HBox addNewEntryHBox = getAddEntryHBox(root,primaryStage);
 		
-		TableView tableOfToDoList = getTableView();
+		tableOfToDoList = getTableView();
 		
-		HBox importSaveGenerateHBox = getImportSaveGenerateHBox();
+		HBox importSaveGenerateHBox = getImportSaveGenerateHBox(root,primaryStage);
 		
-		HBox sortButtonsHBox = sortButtonsHBox();
+		HBox sortButtonsHBox = sortButtonsHBox(root,primaryStage);
 		
 		//Makes window and stuff------------------------------------------------
-		AnchorPane root = new AnchorPane();
+		
 	
 		root.getChildren().addAll(addNewEntryHBox, sortButtonsHBox, tableOfToDoList, importSaveGenerateHBox);
 		Scene scene = new Scene(root, 1000, 800);
@@ -46,29 +66,41 @@ public class Main extends Application {
 		primaryStage.setTitle("To Do List");
 		primaryStage.setScene(scene);
 		primaryStage.show();
-	
+		
+		//tableOfToDoList.setItems(data);
+		update(root,primaryStage);
 		//----------------------------------------------------------------------
 	}
 	
 	//EXAMPLE (DOES NOT ACTUALLY UPDATE YET SINCE IT DEPENDS ON CLASS)
 	public void update(AnchorPane root, Stage primaryStage) {
-		TableView temp = (TableView) root.getChildren().get(1); //this depends on tableOfToDoList being the second entry on line 49
-		TableColumn priorityColumn = (TableColumn) temp.getColumns().get(0);
-		TableColumn descriptionColumn = (TableColumn) temp.getColumns().get(1);
-		TableColumn dueDateColumn = (TableColumn) temp.getColumns().get(2);
-		TableColumn finishDateColumn = (TableColumn) temp.getColumns().get(3);
-		TableColumn statusColumn = (TableColumn) temp.getColumns().get(4);
-		priorityColumn.setCellValueFactory(new PropertyValueFactory<>("0"));
-		descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("example description"));
-		dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("4/25/2019"));
-		finishDateColumn.setCellValueFactory(new PropertyValueFactory<>("NA"));
-		statusColumn.setCellValueFactory(new PropertyValueFactory<>("In Progress"));
+		//TableView<Entry> temp = (TableView<Entry>) root.getChildren().get(2); //this depends on tableOfToDoList being the second entry on line 49
+		//TableColumn priorityColumn = (TableColumn) temp.getColumns().get(0);
+		//TableColumn descriptionColumn = (TableColumn) temp.getColumns().get(1);
+		//TableColumn dueDateColumn = (TableColumn) temp.getColumns().get(2);
+		//TableColumn finishDateColumn = (TableColumn) temp.getColumns().get(3);
+		//TableColumn statusColumn = (TableColumn) temp.getColumns().get(4);
+		//priorityColumn.setCellValueFactory(new PropertyValueFactory<>("0"));
+		//descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("example description"));
+		//dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("4/25/2019"));
+		//finishDateColumn.setCellValueFactory(new PropertyValueFactory<>("NA"));
+		//statusColumn.setCellValueFactory(new PropertyValueFactory<>("In Progress"));
+		int cap = tableOfToDoList.getItems().size();
+		for(int i = 0; i < cap; ++i) {
+			tableOfToDoList.getItems().remove(0);
+		}
+		
+		for(int i = 0; i < toDoList.getSize(); ++i) {
+			tableOfToDoList.getItems().add(toDoList.getEntryWithIndex(i));
+		}
+		
+		
 		primaryStage.show();
 	}
 	
 	
 	
-	public HBox sortButtonsHBox() {
+	public HBox sortButtonsHBox(AnchorPane root, Stage primaryStage) {
 		
 		HBox sortButtons = new HBox();
 		sortButtons.setPadding(new Insets(0,5,2,5));
@@ -289,7 +321,7 @@ public class Main extends Application {
 		return sortButtons;
 	}
 	
-	public HBox getAddEntryHBox() {
+	public HBox getAddEntryHBox(AnchorPane root, Stage primaryStage) {
 				
 				//----------------------------------------------------------------------
 				HBox addNewEntryHBox = new HBox();
@@ -395,7 +427,6 @@ public class Main extends Application {
 				priorityPane.setMaxWidth(100);
 				TextField priorityTextField = new TextField();
 				priorityTextField.setPromptText("priority");
-				priorityTextField.setPromptText("due date");
 				priorityTextField.setMinHeight(34);
 				priorityTextField.setMaxHeight(34);
 				priorityTextField.setMinWidth(100);
@@ -430,10 +461,30 @@ public class Main extends Application {
 								//It needs to add the entry to the To Do List Class AND
 								//call update after it does this.=================================================================================================================================================================================================================================================================================================================================
 								//update will reload all of the table entries.
-								if (nameTextField.getText() != null && descriptionTextField.getText() != null && dueDateTextField.getText() != null && priorityTextField.getText() != null) {
+								if (nameTextField.getText() != null && descriptionTextField.getText() != null && dueDateTextField.getText() != null && priorityTextField.getText() != null && !dueDateTextField.getText().isEmpty()) {
 									//some extra parsing should be handled here for valid dates and priority >= 1 or 0
 									//it should also check for the text not equal to "" (since it can be "" but not null)======================================================================================================================================================================================================================
-									System.out.println("Entry added: " + descriptionTextField.getText() + dueDateTextField.getText() + priorityTextField.getText());
+									//System.out.println("Entry added: " + descriptionTextField.getText() + dueDateTextField.getText() + priorityTextField.getText());
+									Date dateOfEntry;
+									try {
+										dateOfEntry = new SimpleDateFormat("MM.dd.yyyy").parse(dueDateTextField.getText());
+										int newPriority = Integer.parseInt(priorityTextField.getText());
+										Calendar cal = Calendar.getInstance();
+									    cal.add(Calendar.DATE, -1);
+									    
+										if(dateOfEntry != null && dateOfEntry.after(cal.getTime())) {
+											toDoList.addEntry(new Entry(nameTextField.getText(), descriptionTextField.getText(), dateOfEntry, newPriority));
+											System.out.println("Entry added: " + dateOfEntry.toString() + " " + newPriority + " " + descriptionTextField.getText() );
+											update(root,primaryStage);
+										}else {
+											System.out.println("Entry given not in proper format! It was therefore not added!");
+										}
+										
+									} catch (ParseException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									
 								}
 								
 							}
@@ -481,37 +532,43 @@ public class Main extends Application {
 		return addNewEntryHBox;
 	}
 	
-	public TableView getTableView() {
+	public TableView<Entry> getTableView() {
 		//Set up table of To Do Entries-----------------------------------------
-				TableView tableOfToDoList = new TableView();
+				TableView<Entry> tableOfToDoList = new TableView<>();
 				tableOfToDoList.setEditable(true);
 			
 		
-				TableColumn priorityColumn = new TableColumn("Priority");
+				TableColumn<Entry, Integer> priorityColumn = new TableColumn<>("Priority");
 				priorityColumn.setId("priorityColumn");
 				priorityColumn.setMinWidth(72);
 				priorityColumn.setMaxWidth(72);
-		
-				TableColumn nameColumn = new TableColumn("Name");
-				priorityColumn.setId("nameColumn");
-				priorityColumn.setMinWidth(105);
-				priorityColumn.setMaxWidth(105);
+				priorityColumn.setCellValueFactory(new PropertyValueFactory<Entry, Integer>("priority"));
 				
-				TableColumn descriptionColumn = new TableColumn("Description");
+				TableColumn<Entry, String> nameColumn = new TableColumn<>("Name");
+				nameColumn.setId("nameColumn");
+				nameColumn.setMinWidth(115);
+				nameColumn.setMaxWidth(115);
+				nameColumn.setCellValueFactory(new PropertyValueFactory<Entry, String>("name"));
+				
+				TableColumn<Entry, String> descriptionColumn = new TableColumn<>("Description");
 				descriptionColumn.setMinWidth(508);
 				descriptionColumn.setMaxWidth(508);
+				descriptionColumn.setCellValueFactory(new PropertyValueFactory<Entry, String>("description"));
 				
-				TableColumn dueDateColumn = new TableColumn("Due Date");
+				TableColumn<Entry, Date> dueDateColumn = new TableColumn<>("Due Date");
 				dueDateColumn.setMinWidth(105);
 				dueDateColumn.setMaxWidth(105);
+				dueDateColumn.setCellValueFactory(new PropertyValueFactory<Entry, Date>("dueDate"));
 				
-				TableColumn finishDateColumn = new TableColumn("Finish Date");
+				TableColumn<Entry, Date> finishDateColumn = new TableColumn<>("Finish Date");
 				finishDateColumn.setMinWidth(105);
 				finishDateColumn.setMaxWidth(105);
+				finishDateColumn.setCellValueFactory(new PropertyValueFactory<Entry, Date>("finishDate"));
 				
-				TableColumn statusColumn = new TableColumn("Status");
+				TableColumn<Entry, String> statusColumn = new TableColumn<>("Status");
 				statusColumn.setMinWidth(105);
 				statusColumn.setMaxWidth(105);
+				statusColumn.setCellValueFactory(new PropertyValueFactory<Entry, String>("Status"));
 				
 				tableOfToDoList.getColumns().addAll(priorityColumn, nameColumn, descriptionColumn, dueDateColumn, finishDateColumn, statusColumn);
 				tableOfToDoList.setLayoutX(0);
@@ -523,7 +580,7 @@ public class Main extends Application {
 		return tableOfToDoList;
 	}
 	
-	public HBox getImportSaveGenerateHBox() {
+	public HBox getImportSaveGenerateHBox(AnchorPane root, Stage primaryStage) {
 		
 		//Makes Row of buttons at the bottom for importing, exporting, and generating reports
 				HBox importSaveGenerateHBox = new HBox();
