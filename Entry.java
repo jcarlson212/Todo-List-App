@@ -91,12 +91,38 @@ public class Entry implements Serializable {
 
 
 	// Helper Functions
+	public String toString() {
+		String stringRep = "";
+		stringRep += getDescription() + "\n";
+		stringRep += getPriority() + "\n";
+		stringRep += getDueDate() + "\n";
+		if (getStatus() == finished) {
+			stringRep += getFinishDate() + "\n";
+		}
+		stringRep += getStatus();
+
+		if (isDeleted()) {
+			stringRep += "Deleted\n"
+		}
+
+		return stringRep;
+	}
+
 	public void print() {
 		String toPrint = "";
 		toPrint += getDescription() + "\n";
 		toPrint += getPriority() + "\n";
 		toPrint += getDueDate() + "\n";
+
+		if (getStatus() == finished) {
+			toPrint += getFinishDate() + "\n";
+		}
+
 		toPrint += getStatus();
+
+		if (isDeleted()) {
+			toPrint += "Deleted\n"
+		}
 
 		System.out.println(toPrint);
 	}
