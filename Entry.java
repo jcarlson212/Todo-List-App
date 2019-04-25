@@ -28,6 +28,7 @@ public class Entry implements Serializable {
 		}
 	}
 
+	private String name;
 	private String description;
 	private Date dueDate;
 	private Date finishDate;
@@ -35,7 +36,8 @@ public class Entry implements Serializable {
 	private boolean isDeleted;
 	private int priority;
 	
-	public Entry(String description, Date dueDate) {
+	public Entry(String name, String description, Date dueDate) {
+		this.name = name;
 		this.description = description;
 		this.dueDate = dueDate;
 		this.finishDate = null;
@@ -45,6 +47,9 @@ public class Entry implements Serializable {
 		
 	} //end of constructor
 	
+	public String getName() {
+		return name;
+	}
 	public String getDescription(){
 		return description;
 	}
@@ -61,19 +66,27 @@ public class Entry implements Serializable {
 		return priority;
 	}
 	
-	public void setDescription(String des) {
+	public Status getStatus() {
+		return currentStatus;
+	}
+
+	public void changeName(String name) {
+		this.name = name;
+	}
+
+	public void changeDescription(String des) {
 		this.description  = des;
 	}
 	
-	public void setFinishDate(Date date) {
-		this.finishDate = date;
+	public void setFinishDate() {
+		this.finishDate = new Date();
 	}
 	
-	public void setDueDate(Date date) {
+	public void changeDueDate(Date date) {
 		this.dueDate = date;
 	}
 	
-	public void setPriority(int prior){
+	public void changePriority(int prior){
 		this.priority = prior;
 	}
 	
@@ -81,11 +94,7 @@ public class Entry implements Serializable {
 		this.isDeleted = true;
 	}
 	
-	public Status getStatus() {
-		return currentStatus;
-	}
-	
-	public void setStatus(Status newStatus) {
+	public void changeStatus(Status newStatus) {
 		this.currentStatus = newStatus;
 	}
 
@@ -93,6 +102,7 @@ public class Entry implements Serializable {
 	// Helper Functions
 	public String toString() {
 		String stringRep = "";
+		stringRep += getName() + "\n";
 		stringRep += getDescription() + "\n";
 		stringRep += getPriority() + "\n";
 		stringRep += getDueDate() + "\n";
@@ -110,6 +120,7 @@ public class Entry implements Serializable {
 
 	public void print() {
 		String toPrint = "";
+		toPrint += getName() + "\n";
 		toPrint += getDescription() + "\n";
 		toPrint += getPriority() + "\n";
 		toPrint += getDueDate() + "\n";
