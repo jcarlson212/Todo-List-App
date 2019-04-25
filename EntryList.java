@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.io.Serializable;
+import java.io.*;
 
-public class EntryList {
+public class EntryList implements Serializable {
 	private ArrayList<Entry> entryList;
 	private static int count = 0;
 
@@ -41,14 +41,13 @@ public class EntryList {
 
 	// Methods to Save and Write to A File
 	public void save() {
-		
+		// save each of the Entries in the ArrayList 
+
 	}
 
 	public void load() {
 		
 	}
-
-
 
 	/* Helper Functions */
 	public boolean uniqueDescrip(String descip) {
@@ -61,6 +60,48 @@ public class EntryList {
 		return true;
 	}
 
+	public void printEntries() {
+		for(Entry entry : entryList) {
+			entry.print();
+			System.out.println();
+		}
+	}
+
+	public void WriteObjectToFile(Object serObj) {
+		final String filePath = "/home/bo/Downloads/test";
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream(filePath) ;
+			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut) ;
+			objectOut.writeObject(serObj);
+			objectOut.close();
+			System.out.println("The object was successfully written");
+			
+			
+		} catch(Exception e) {
+			System.out.println("The object was not successfully written");
+			e.printStackTrace();
+		}
+	}
+
+   public Object ReadObjectFromFile(String filepath) {
+        try {
+ 
+            FileInputStream fileIn = new FileInputStream(filepath);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+ 
+            Object obj = objectIn.readObject();
+ 
+            System.out.println("The Object has been read from the file");
+            objectIn.close();
+            return obj;
+ 
+        } catch (Exception ex) {
+            System.out.println("The Object has not been read from the file");
+            ex.printStackTrace();
+            return null;
+        }
+    }
 
 	// Nested Classes used to implement sorting features
 	static class DescriptionCompare implements Comparator<Entry> 
