@@ -5,6 +5,7 @@ import java.io.*;
 public class EntryList implements Serializable {
 	private ArrayList<Entry> entryList;
 	private static int count = 0;
+	public static String filePath = "/home/bo/Downloads/test";
 
 	public EntryList() {
 		entryList = new ArrayList<Entry>();
@@ -42,11 +43,44 @@ public class EntryList implements Serializable {
 	// Methods to Save and Write to A File
 	public void save() {
 		// save each of the Entries in the ArrayList 
+		try {
+			FileOutputStream fos = new FileOutputStream(filePath);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+			// Write the number of Entries that will be written
+			oos.writeInt(count);
+		
+			for(Entry entry : entryList) {
+				oos.writeObject(entry);
+			}
+
+			oos.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
 	public void load() {
-		
+		ArrayList<Entry> temp = new ArrayList<Entry>();
+
+		try {
+			FileInputStream fis = new FileInputStream(filePath);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+
+			int length = ois.readInt();
+
+			for(int i = 0; i < length; i++) {
+				temp.add((Entry) ois.readObject());
+			}
+
+			ois.close();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		entryList = temp;
 	}
 
 	/* Helper Functions */
@@ -66,42 +100,6 @@ public class EntryList implements Serializable {
 			System.out.println();
 		}
 	}
-
-	public void WriteObjectToFile(Object serObj) {
-		final String filePath = "/home/bo/Downloads/test";
-
-		try {
-			FileOutputStream fileOut = new FileOutputStream(filePath) ;
-			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut) ;
-			objectOut.writeObject(serObj);
-			objectOut.close();
-			System.out.println("The object was successfully written");
-			
-			
-		} catch(Exception e) {
-			System.out.println("The object was not successfully written");
-			e.printStackTrace();
-		}
-	}
-
-   public Object ReadObjectFromFile(String filepath) {
-        try {
- 
-            FileInputStream fileIn = new FileInputStream(filepath);
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
- 
-            Object obj = objectIn.readObject();
- 
-            System.out.println("The Object has been read from the file");
-            objectIn.close();
-            return obj;
- 
-        } catch (Exception ex) {
-            System.out.println("The Object has not been read from the file");
-            ex.printStackTrace();
-            return null;
-        }
-    }
 
 	// Nested Classes used to implement sorting features
 	static class DescriptionCompare implements Comparator<Entry> 
