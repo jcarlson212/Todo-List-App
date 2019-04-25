@@ -83,6 +83,22 @@ public class EntryList implements Serializable {
 		entryList = temp;
 	}
 
+	public void generateReport(String fileName) {
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			PrintWriter pw = new PrintWriter(fw);
+
+			for(Entry entry : entryList) {
+				pw.print(entry.toString() + "\n");
+			}
+
+			pw.close();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/* Helper Functions */
 	public boolean uniqueDescrip(String descip) {
 		for(int i = 0; i < entryList.size(); i++) {

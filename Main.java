@@ -1,5 +1,3 @@
-package ToDoListPackage;
-
 import java.util.Optional;
 
 import javax.swing.event.HyperlinkEvent.EventType;

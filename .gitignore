@@ -1,3 +1,6 @@
 *~
 *.class
 Test.java
+.classpath
+.project
+report.txt
