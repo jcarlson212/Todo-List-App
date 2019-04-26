@@ -9,8 +9,8 @@ public class EntryList implements Serializable {
 	private ArrayList<Entry> entryList;
 	private static int count = 0;
 	public static String filePath = "/home/bo/Downloads/test";
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat();
-	dateFormat.applyPattern("MM:dd:yy");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM:dd:yy");
+	
 	public enum SortedBy {
 		byName,
 		byDescription,
@@ -96,12 +96,12 @@ public class EntryList implements Serializable {
 			return;
 		}
 
-		if (!isDescriptionUnique(newDescrip)) {
+		if (!isNameUnique(newName)) {
 			System.out.println("The descripton you want to set is not unique");
 			return;
 		}
 
-		toChange.changeDescription(newDescrip);
+		toChange.changeName(newName);
 
 		// TODO: Call update function here
 	}
@@ -145,7 +145,7 @@ public class EntryList implements Serializable {
 		try {
 			newDate = dateFormat.parse(newDateString);
 		} catch(Exception e) {
-			newDate = toChane.getDueDate();
+			newDate = toChange.getDueDate();
 			e.printStackTrace();
 		}
 		
@@ -261,6 +261,16 @@ public class EntryList implements Serializable {
 		return true;
 	}
 
+	public boolean isNameUnique(String newName) {
+		for(int i = 0; i < entryList.size(); i++) {
+			if (entryList.get(i).getName().equals(newName)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public void printEntries() {
 		for(Entry entry : entryList) {
 			entry.print();
@@ -276,7 +286,7 @@ public class EntryList implements Serializable {
 		{ 
 			if (entry1.getName().compareTo(entry2.getName()) < 0 ) 
 				return -1; 
-			if (entry1.getName().compareTo(entry2.Name()) > 0) 
+			if (entry1.getName().compareTo(entry2.getName()) > 0) 
 				return 1; 
         
 			else return 0; 
