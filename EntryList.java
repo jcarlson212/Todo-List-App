@@ -2,15 +2,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.io.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class EntryList implements Serializable {
 	private ArrayList<Entry> entryList;
 	private static int count = 0;
-	public static String filePath = "/home/bo/Downloads/test";
+	//public static String filePath = "/home/bo/Downloads/test";
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM:dd:yy");
-	
 	public enum SortedBy {
 		byName,
 		byDescription,
@@ -19,7 +17,6 @@ public class EntryList implements Serializable {
 		byStatus;
 	}
 	private static SortedBy currentSort = SortedBy.byPriority;
-
 	public EntryList() {
 		entryList = new ArrayList<Entry>();
 	}
@@ -27,7 +24,28 @@ public class EntryList implements Serializable {
 	// Methods to Add and Delete Entries
 	public void addEntry(Entry newEntry) {
 		count++;
-		newEntry.changePriority(count);
+		for(int i = 0; i < entryList.size(); ++i) {
+			if(entryList.get(i).getPriority() == newEntry.getPriority()) {
+				//shift them up
+				entryList.get(i).setPriority(entryList.get(i).getPriority() + 1);
+				int priorityTemp = entryList.get(i).getPriority();
+				int index = i;
+				boolean needsToGoAgain = true;
+				while(needsToGoAgain == true) {
+					needsToGoAgain = false;
+					for(int j =0; j < entryList.size(); ++j) {
+						if(entryList.get(j).getPriority() == priorityTemp && j != index) {
+							entryList.get(j).setPriority(entryList.get(j).getPriority() + 1);
+							needsToGoAgain = true;
+							priorityTemp = entryList.get(j).getPriority();
+							index = j;
+							break;
+						}
+					}
+				}
+				
+			}
+		}
 		entryList.add(newEntry);
 	}
 
@@ -35,6 +53,7 @@ public class EntryList implements Serializable {
 		Entry toDelete = entryList.get(indexToDelete);
 		toDelete.markAsDeleted();
 	}
+
 
 	// Methods to Sort the List
 	public void sortByName() {
@@ -61,134 +80,56 @@ public class EntryList implements Serializable {
 		entryList.sort(new EntryList.StatusCompare());
 		currentSort = SortedBy.byStatus;
 	}
+	public Entry getEntryWithIndex(int index) {
+		return entryList.get(index);
+	}
 
-	// Methods to get an Entry
-	public Entry getEntry(String descrip) {
-		for(Entry entry : entryList) {
-			if (entry.getDescription().equals(descrip)) {
-				return entry;
+	public int getSize() {
+		return entryList.size();
+	}
+	
+	public Entry getEntryWithDescription(String descr) {
+		for(int i =0; i < entryList.size(); ++i) {
+			if(entryList.get(i).getDescription() == descr) {
+				return entryList.get(i);
 			}
 		}
-
 		return null;
 	}
-
-	public Entry getEntry(int priority) {
-		for(Entry entry : entryList) {
-			if (entry.getPriority() == priority) {
-				return entry;
-			}
-		}
-
-		return null;
-	}
-
-	// Methods to change the parameters of an entry
-	public void changeEntryName(String target, String newName) {
-		if (newName.isEmpty() || target.isEmpty()) {
-			System.out.println("Neither Field can be empty");
-		}
-
-		Entry toChange = getEntry(target);
-
-		if (toChange == null) {
-			System.out.print("Entry with that description is not in the list");
-			return;
-		}
-
-		if (!isNameUnique(newName)) {
-			System.out.println("The descripton you want to set is not unique");
-			return;
-		}
-
-		toChange.changeName(newName);
-
-		// TODO: Call update function here
-	}
-
-	public void changeEntryDescription(String target, String newDescrip) {
-		if (newDescrip.isEmpty() || target.isEmpty()) {
-			System.out.println("Neither Field can be empty");
-		}
-
-		Entry toChange = getEntry(target);
-
-		if (toChange == null) {
-			System.out.print("Entry with that description is not in the list");
-			return;
-		}
-
-		if (!isDescriptionUnique(newDescrip)) {
-			System.out.println("The descripton you want to set is not unique");
-			return;
-		}
-
-		toChange.changeDescription(newDescrip);
-
-		// TODO: Call update function here
-	}
-
-	public void changeEntryDueDate(String target, String newDateString) {
-		if (newDateString.isEmpty() || target.isEmpty()) {
-			System.out.println("Neither Field can be empty");
-			return;
-		}
-
-		Entry toChange = getEntry(target);
-
-		if (toChange == null) {
-			System.out.println("Entry with that description is not in the list");
-			return;
-		}
-		
-		Date newDate = null;
-		try {
-			newDate = dateFormat.parse(newDateString);
-		} catch(Exception e) {
-			newDate = toChange.getDueDate();
-			e.printStackTrace();
-		}
-		
-		toChange.changeDueDate(newDate);
-	}
-
-	public void changeEntryPriority(String target, int newPriority) {
-		if (target.isEmpty()) {
-			System.out.print("The Target Field can't be empty");
-			return;
-		}
-
-		if (newPriority > count || newPriority < 1) {
-			System.out.print("The Priority is out of range");
-			return;
-		}
-
-		Entry toChange = getEntry(target);
-
-		if (toChange == null) {
-			System.out.println("Entry with that description is not in the list");
-			return;
-		}
-
-		toChange.changePriority(newPriority);
-
-		if (currentSort == SortedBy.byPriority) {
-			int index = entryList.indexOf(toChange);
-
-			entryList.remove(index);
-			entryList.add(newPriority - 1, toChange);
-
-			for(int i = index + 1; i < entryList.size(); i++) {
-				entryList.get(i).changePriority(i + 1);
+	
+	public void setDueDateGiveDescription(String descr, Date newDueDate) {
+		for(int i =0; i < entryList.size(); ++i) {
+			if(entryList.get(i).getDescription() == descr) {
+				entryList.get(i).setDueDate(newDueDate);
 			}
 		}
 	}
-
+	
+	public boolean DescripExists(String descr) {
+		for(int i =0; i < entryList.size(); ++i) {
+			if(entryList.get(i).getDescription() == descr) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public int indexForDescription(String descr) {
+		
+		for(int i =0; i < entryList.size(); ++i) {
+			if(entryList.get(i).getDescription() == descr) {
+				return i;
+			}
+		}
+		return 0; //it should always find it
+	}
+	
 	// Methods to Save and Write to A File
-	public void saveList() {
+	public void save(String nameOfFile) {
 		// save each of the Entries in the ArrayList 
 		try {
-			FileOutputStream fos = new FileOutputStream(filePath);
+			FileOutputStream fos = new FileOutputStream(nameOfFile);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 
 			// Write the number of Entries that will be written
@@ -205,12 +146,34 @@ public class EntryList implements Serializable {
 
 	}
 
-	public void importEntries() {
+	public void load(String nameOfFile) {
+		ArrayList<Entry> temp = new ArrayList<Entry>();
+
+		try {
+			FileInputStream fis = new FileInputStream(nameOfFile);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+
+			int length = ois.readInt();
+
+			for(int i = 0; i < length; i++) {
+				temp.add((Entry) ois.readObject());
+			}
+
+			ois.close();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		entryList = temp;
+	}
+	
+	public void importEntries(String nameOfFile) {
 		ArrayList<Entry> temp = new ArrayList<Entry>();
 		int length = 0;
 		
 		try {
-			FileInputStream fis = new FileInputStream(filePath);
+			FileInputStream fis = new FileInputStream(nameOfFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 
 			length = ois.readInt();
@@ -235,7 +198,7 @@ public class EntryList implements Serializable {
 			PrintWriter pw = new PrintWriter(fw);
 
 			for(Entry entry : entryList) {
-				pw.print(entry.toString() + "\n");
+				pw.print(entry.toString() + "                    \n");
 			}
 
 			pw.close();
@@ -244,26 +207,15 @@ public class EntryList implements Serializable {
 			e.printStackTrace();
 		}
 	}
-
-
+	
 	public void reset() {
 		entryList = new ArrayList<Entry>();
 	}
 
 	/* Helper Functions */
-	public boolean isDescriptionUnique(String descip) {
+	public boolean uniqueDescrip(String descip) {
 		for(int i = 0; i < entryList.size(); i++) {
 			if (entryList.get(i).getDescription().equals(descip)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public boolean isNameUnique(String newName) {
-		for(int i = 0; i < entryList.size(); i++) {
-			if (entryList.get(i).getName().equals(newName)) {
 				return false;
 			}
 		}
@@ -277,7 +229,16 @@ public class EntryList implements Serializable {
 			System.out.println();
 		}
 	}
+	
+	public boolean isNameUnique(String newName) {
+		for(int i = 0; i < entryList.size(); i++) {
+			if (entryList.get(i).getName().equals(newName)) {
+				return false;
+			}
+		}
 
+		return true;
+	}
 
 	// Nested Classes used to implement sorting features
 	static class NameCompare implements Comparator<Entry> 
@@ -285,14 +246,14 @@ public class EntryList implements Serializable {
 		public int compare(Entry entry1, Entry entry2) 
 		{ 
 			if (entry1.getName().compareTo(entry2.getName()) < 0 ) 
-				return -1; 
+					return -1; 
 			if (entry1.getName().compareTo(entry2.getName()) > 0) 
 				return 1; 
-        
+	        
 			else return 0; 
 		} 
 	} 
-
+		
 	static class DescriptionCompare implements Comparator<Entry> 
 	{ 
 		public int compare(Entry entry1, Entry entry2) 
