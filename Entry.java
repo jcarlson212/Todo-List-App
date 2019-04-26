@@ -28,30 +28,40 @@ public class Entry implements Serializable {
 		}
 	}
 
-	private String name;
 	private String description;
 	private Date dueDate;
 	private Date finishDate;
 	private Status currentStatus;
 	private boolean isDeleted;
 	private int priority;
+	private String name;
 	
-	public Entry(String name, String description, Date dueDate) {
-		this.name = name;
+	public Entry(String description, Date dueDate) {
 		this.description = description;
 		this.dueDate = dueDate;
 		this.finishDate = null;
 		this.priority = 0;
 		this.currentStatus = Status.notStarted;
 		this.isDeleted = false;
-		
+		this.setName("");
 	} //end of constructor
 	
-	public String getName() {
-		return name;
-	}
+	public Entry(String name, String description, Date dueDate, int priority) {
+		this.description = description;
+		this.dueDate = dueDate;
+		this.finishDate = null;
+		this.priority = priority;
+		this.currentStatus = Status.notStarted;
+		this.isDeleted = false;
+		this.setName(name);
+	} //end of constructor
+	
 	public String getDescription(){
 		return description;
+	}
+	
+	public String getFinishDateAsString() {
+		return finishDate.toString();
 	}
 	
 	public Date getFinishDate() {
@@ -62,31 +72,31 @@ public class Entry implements Serializable {
 		return dueDate;
 	}
 	
+	public String getDueDateAsString() {
+		return dueDate.toString();
+	}
+	
 	public int getPriority() {
 		return priority;
 	}
 	
-	public Status getStatus() {
-		return currentStatus;
+	public String getPriorityAsString() {
+		return String.valueOf(priority);
 	}
-
-	public void changeName(String name) {
-		this.name = name;
-	}
-
-	public void changeDescription(String des) {
+	
+	public void setDescription(String des) {
 		this.description  = des;
 	}
 	
-	public void setFinishDate() {
-		this.finishDate = new Date();
+	public void setFinishDate(Date date) {
+		this.finishDate = date;
 	}
 	
-	public void changeDueDate(Date date) {
+	public void setDueDate(Date date) {
 		this.dueDate = date;
 	}
 	
-	public void changePriority(int prior){
+	public void setPriority(int prior){
 		this.priority = prior;
 	}
 	
@@ -94,48 +104,62 @@ public class Entry implements Serializable {
 		this.isDeleted = true;
 	}
 	
-	public void changeStatus(Status newStatus) {
+	public Status getStatus() {
+		return currentStatus;
+	}
+	
+	public void setStatus(Status newStatus) {
 		this.currentStatus = newStatus;
+	}
+	
+	public boolean isDeleted() {
+		return this.isDeleted;
 	}
 
 
 	// Helper Functions
 	public String toString() {
 		String stringRep = "";
-		stringRep += getName() + "\n";
 		stringRep += getDescription() + "\n";
 		stringRep += getPriority() + "\n";
 		stringRep += getDueDate() + "\n";
-		if (getStatus() == finished) {
+		if (getStatus() == Status.finished) {
 			stringRep += getFinishDate() + "\n";
 		}
 		stringRep += getStatus();
-
+		
 		if (isDeleted()) {
-			stringRep += "Deleted\n"
+			stringRep += "Deleted\n";
 		}
-
+		
 		return stringRep;
 	}
 
 	public void print() {
 		String toPrint = "";
-		toPrint += getName() + "\n";
 		toPrint += getDescription() + "\n";
 		toPrint += getPriority() + "\n";
 		toPrint += getDueDate() + "\n";
 
-		if (getStatus() == finished) {
+		if (getStatus() == Status.finished) {
 			toPrint += getFinishDate() + "\n";
 		}
 
 		toPrint += getStatus();
-
+		
 		if (isDeleted()) {
-			toPrint += "Deleted\n"
+			toPrint += "Deleted\n";
 		}
-
+		
 		System.out.println(toPrint);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }//end of entry class
